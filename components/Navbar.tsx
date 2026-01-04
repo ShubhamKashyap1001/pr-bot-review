@@ -30,8 +30,9 @@ export default function HomePage() {
   }, [theme]);
 
   const toggleTheme = () =>
-    setTheme(prev => (prev === "light" ? "dark" : "light"));
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
 
+  // Upload demo video
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -48,12 +49,14 @@ export default function HomePage() {
     setVideoUrl(data.url);
   };
 
+  // Auto-play video when opened
   useEffect(() => {
     if (showVideoCard && videoRef.current) {
       videoRef.current.play().catch(() => {});
     }
   }, [showVideoCard, videoUrl]);
 
+  // Click to pause / resume
   const handleVideoClick = () => {
     if (!videoRef.current) return;
     videoRef.current.paused
@@ -103,10 +106,11 @@ export default function HomePage() {
         </div>
       </nav>
 
+      {/* PAGE CONTENT */}
       <main className="flex-1 pt-24">
-        {/* ================================================================= */}
-        {/* 🎥 VIDEO PAGE */}
-        {/* ================================================================= */}
+        
+        {/*  VIDEO MODE */}
+        
         {showVideoCard ? (
           <section className="pb-16 px-3 max-w-[1200px] mx-auto">
             <div className="max-w-4xl">
@@ -125,6 +129,7 @@ export default function HomePage() {
                     : "bg-[#0b0b0b] border-white/15"
                 }`}
               >
+                {/* Video Window */}
                 <div
                   className={`w-full rounded-xl border shadow-lg overflow-hidden mb-6 flex items-center justify-center cursor-pointer ${
                     theme === "light"
@@ -149,11 +154,13 @@ export default function HomePage() {
                   )}
                 </div>
 
+                {/* Upload Section */}
                 {isAdmin && (
                   <div className="mb-6">
                     <p className="text-sm opacity-70 mb-2">
                       Admin: Upload PR-Bot demo video
                     </p>
+
                     <input
                       type="file"
                       accept="video/*"
@@ -171,9 +178,9 @@ export default function HomePage() {
           </section>
         ) : (
           <>
-            {/* ================================================================= */}
-            {/* 🌟 HERO */}
-            {/* ================================================================= */}
+            
+            {/*  HERO SECTION */}
+           
             <section className="pb-20 px-3 max-w-[1200px] mx-auto">
               <div className="max-w-4xl">
                 <h1 className="text-5xl md:text-8xl font-bold leading-[0.95] mb-8">
@@ -182,7 +189,9 @@ export default function HomePage() {
 
                 <p
                   className={`max-w-2xl mb-10 text-lg md:text-2xl ${
-                    theme === "light" ? "text-gray-700" : "text-slate-400"
+                    theme === "light"
+                      ? "text-gray-700"
+                      : "text-slate-400"
                   }`}
                 >
                   PR-Bot is the automated code review system for
@@ -190,19 +199,15 @@ export default function HomePage() {
                 </p>
 
                 <div className="flex flex-col md:flex-row gap-3 md:gap-8">
-                  <button className="px-6 py-3 rounded-lg bg-white text-black font-semibold shadow-md hover:shadow-xl">
+                  <button className="inline-flex w-fit self-start px-4 py-3 rounded-lg bg-white text-black font-semibold shadow-md hover:shadow-xl">
                     <a href="https://github.com/apps/v0-pr-bot-reviewer">
                       Install PR-Bot
                     </a>
                   </button>
 
-                  <button className="opacity-75 hover:opacity-100 border-b">
-                    View example review
-                  </button>
-
                   <button
                     onClick={() => setShowVideoCard(true)}
-                    className="opacity-75 hover:opacity-100 border-b"
+                    className="w-fit self-start opacity-75 hover:opacity-100 border-b border-current"
                   >
                     Watch how PR-Bot works
                   </button>
@@ -210,9 +215,9 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* ================================================================= */}
-            {/* 💻 REVIEW CARD */}
-            {/* ================================================================= */}
+           
+            {/* REVIEW DEMO CARD */}
+            
             <section
               className={`py-12 ${
                 theme === "light" ? "bg-gray-200" : "bg-[#080808]"
@@ -321,6 +326,7 @@ export default function HomePage() {
                     >
                       34&nbsp;&nbsp;return errors.New("unauthorized")
                     </div>
+
                     <div
                       className={`${
                         theme === "light"
@@ -338,22 +344,31 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* ================================================================= */}
-      {/* 🧩 FOOTER — THEMED + ALWAYS VISIBLE */}
-      {/* ================================================================= */}
+      
+      {/*  FOOTER */}
+      
       <footer
-        className={`border-t px-3 md:px-6 py-10 ${
+        className={`border-t px-3 md:px-6 py-12 ${
           theme === "light"
             ? "bg-white border-gray-300 text-gray-800"
             : "bg-[#050505] border-white/10 text-slate-300"
         }`}
       >
         <div className="max-w-[1200px] mx-auto">
-          <span className="font-bold text-lg">PR-Bot</span>
+          <h3 className="font-bold text-xl mb-2">PR-Bot</h3>
 
-          <p className="mt-3 max-w-md text-sm opacity-80">
-            The standard for automated code quality. Built for the next
-            generation of software engineering.
+          <p className="max-w-lg text-sm opacity-80 leading-relaxed">
+            AI-powered pull request reviews for high-velocity engineering teams.
+            Improve code quality, reduce review fatigue, and ship confidently at
+            scale. Built for developers. Secure by design. Production-ready.
+          </p>
+
+          <p className="mt-6 text-sm font-semibold opacity-90">
+            Proudly Open Source
+          </p>
+
+          <p className="mt-1 text-xs opacity-70">
+            © 2025 PR-Bot. All rights reserved.
           </p>
         </div>
       </footer>
