@@ -115,7 +115,7 @@ export default function HomePage() {
                     : "bg-[#0b0b0b] border-white/15"
                 }`}
               >
-                {/* VIDEO DISPLAY (visible to all users) */}
+                {/* VIDEO DISPLAY */}
                 <div
                   className={`w-full rounded-xl border shadow-lg overflow-hidden mb-6 flex items-center justify-center cursor-pointer ${
                     theme === "light"
