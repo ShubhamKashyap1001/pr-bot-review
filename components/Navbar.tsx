@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function HomePage() {
   const [showVideoCard, setShowVideoCard] = useState(false);
@@ -11,16 +12,13 @@ export default function HomePage() {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  // Local static video stored in /public/uploads
   const DEFAULT_VIDEO = "/uploads/pr-bot-demo.mp4";
 
-  // Load stored theme
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     if (stored === "dark") setTheme("dark");
   }, []);
 
-  // Apply theme
   useEffect(() => {
     if (theme === "dark") {
       document.body.classList.add("dark");
@@ -34,25 +32,54 @@ export default function HomePage() {
   const toggleTheme = () =>
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
 
-  // Load demo video on mount
   useEffect(() => {
     setVideoUrl(DEFAULT_VIDEO);
   }, []);
 
-  // Auto-play when card opens
   useEffect(() => {
     if (showVideoCard && videoRef.current) {
       videoRef.current.play().catch(() => {});
     }
   }, [showVideoCard, videoUrl]);
 
-  // Click to pause / resume
   const handleVideoClick = () => {
     if (!videoRef.current) return;
     videoRef.current.paused
       ? videoRef.current.play()
       : videoRef.current.pause();
   };
+
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isInteracting, setIsInteracting] = useState(false);
+
+  const slides = [
+    {
+      title: "What does PR-Bot do?",
+      description:
+        "PR-Bot automatically reviews pull requests using AI. It analyzes code changes, detects bugs, security risks, and best-practice violations, and leaves actionable comments directly on GitHub.",
+    },
+    {
+      title: "Why is this application important?",
+      description:
+        "Manual code reviews are slow and inconsistent. PR-Bot reduces review fatigue, enforces standards, and helps teams catch critical issues early before they reach production.",
+    },
+    {
+      title: "How does PR-Bot help teams?",
+      description:
+        "Teams ship faster with confidence. Senior engineers save review time, junior developers learn faster, and repositories remain secure, clean, and maintainable at scale.",
+    },
+  ];
+
+  
+  useEffect(() => {
+    if (isInteracting) return;
+
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [isInteracting, slides.length]);
 
   return (
     <div
@@ -72,12 +99,7 @@ export default function HomePage() {
       >
         <div className="max-w-[1200px] mx-auto px-3 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image
-              src="/social.png"
-              alt="PR Bot Logo"
-              width={30}
-              height={30}
-            />
+            <Image src="/social.png" alt="PR Bot Logo" width={30} height={30} />
             <span className="font-bold text-lg">PR-Bot</span>
           </div>
 
@@ -94,9 +116,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* PAGE CONTENT */}
       <main className="flex-1 pt-24">
-        {/* VIDEO MODE */}
         {showVideoCard ? (
           <section className="pb-16 px-3 max-w-[1200px] mx-auto">
             <div className="max-w-4xl">
@@ -115,7 +135,6 @@ export default function HomePage() {
                     : "bg-[#0b0b0b] border-white/15"
                 }`}
               >
-                {/* VIDEO DISPLAY */}
                 <div
                   className={`w-full rounded-xl border shadow-lg overflow-hidden mb-6 flex items-center justify-center cursor-pointer ${
                     theme === "light"
@@ -149,7 +168,7 @@ export default function HomePage() {
           </section>
         ) : (
           <>
-            {/* HERO SECTION */}
+            {/* HERO */}
             <section className="pb-20 px-3 max-w-[1200px] mx-auto">
               <div className="max-w-4xl">
                 <h1 className="text-5xl md:text-8xl font-bold leading-[0.95] mb-8">
@@ -166,15 +185,16 @@ export default function HomePage() {
                 </p>
 
                 <div className="flex flex-col md:flex-row gap-3 md:gap-8">
-                  <button className="inline-flex w-fit self-start px-4 py-3 rounded-lg bg-white text-black font-semibold shadow-md hover:shadow-xl">
-                    <a href="https://github.com/apps/v0-pr-bot-reviewer">
-                      Install PR-Bot
-                    </a>
-                  </button>
+                  <a
+                    href="https://github.com/apps/v0-pr-bot-reviewer"
+                    className="inline-flex w-fit px-4 py-3 rounded-lg bg-white text-black font-semibold shadow-md hover:shadow-xl"
+                  >
+                    Install PR-Bot
+                  </a>
 
                   <button
                     onClick={() => setShowVideoCard(true)}
-                    className="w-fit self-start opacity-75 hover:opacity-100 border-b border-current"
+                    className="w-fit opacity-75 hover:opacity-100 border-b border-current"
                   >
                     Watch how PR-Bot works
                   </button>
@@ -182,7 +202,228 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* (Your review preview card section remains unchanged) */}
+            <section
+              className={`py-20 ${
+                theme === "light" ? "bg-gray-100" : "bg-[#060606]"
+              }`}
+            >
+              <div className="max-w-[1200px] mx-auto px-3">
+                <h2 className="text-3xl md:text-4xl font-bold mb-10">
+                  About the Project
+                </h2>
+
+                <div className="relative overflow-hidden px-24">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeSlide}
+                      drag="x"
+                      dragConstraints={{ left: 0, right: 0 }}
+                      onDragStart={() => setIsInteracting(true)}
+                      onDragEnd={(e, info) => {
+                        setIsInteracting(false);
+
+                        if (info.offset.x < -160) {
+                          setActiveSlide(
+                            (prev) => (prev + 1) % slides.length
+                          );
+                        } else if (info.offset.x > 160) {
+                          setActiveSlide(
+                            (prev) =>
+                              prev === 0 ? slides.length - 1 : prev - 1
+                          );
+                        }
+                      }}
+                      initial={{ opacity: 0, x: 140, scale: 0.97 }}
+animate={{ opacity: 1, x: 0, scale: 1 }}
+exit={{ opacity: 0, x: -140, scale: 0.97 }}
+transition={{
+  duration: 1.2,                
+  ease: [0.16, 1, 0.3, 1],      
+}}
+
+                      className={`h-[260px] rounded-2xl border p-8 flex flex-col justify-center ${
+                        theme === "light"
+                          ? "bg-white border-gray-300"
+                          : "bg-[#0c0c0c] border-white/10"
+                      }`}
+                    >
+                      <h3 className="text-2xl font-semibold mb-4">
+                        {slides[activeSlide].title}
+                      </h3>
+                      <p
+                        className={`text-lg leading-relaxed ${
+                          theme === "light"
+                            ? "text-gray-700"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {slides[activeSlide].description}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* ARROWS */}
+                  <button
+                    onClick={() =>
+                      setActiveSlide(
+                        activeSlide === 0
+                          ? slides.length - 1
+                          : activeSlide - 1
+                      )
+                    }
+                    className="absolute left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition"
+                  >
+                    ←
+                  </button>
+
+                  {/* RIGHT ARROW */}
+                  <button
+                    onClick={() =>
+                      setActiveSlide((activeSlide + 1) % slides.length)
+                    }
+                    className="absolute right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition"
+                  >
+                    →
+                  </button>
+                </div>
+
+                {/* DOTS */}
+                <div className="flex justify-center gap-2 mt-6">
+                  {slides.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveSlide(index)}
+                      className={`w-3 h-3 rounded-full ${
+                        activeSlide === index
+                          ? "bg-blue-500"
+                          : theme === "light"
+                          ? "bg-gray-400"
+                          : "bg-slate-600"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* CODE PREVIEW */}
+            <section
+              className={`py-12 ${
+                theme === "light" ? "bg-gray-200" : "bg-[#080808]"
+              }`}
+            >
+              <div className="max-w-[1200px] mx-auto px-3">
+                <div
+                  className={`rounded-2xl border shadow-2xl overflow-hidden ${
+                    theme === "light"
+                      ? "bg-white border-gray-300"
+                      : "bg-[#0c0c0c] border-white/10"
+                  }`}
+                >
+                  <div
+                    className={`px-6 py-4 flex items-center justify-between border-b ${
+                      theme === "light"
+                        ? "border-gray-300 bg-gray-100"
+                        : "border-white/10 bg-black/20"
+                    }`}
+                  >
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                    </div>
+                    <span
+                      className={`text-xs tracking-wider ${
+                        theme === "light"
+                          ? "text-gray-700"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      ENGINE/AUTH.GO
+                    </span>
+                    <div className="w-8" />
+                  </div>
+
+                  <div className="p-10 font-mono text-[15px] leading-relaxed">
+                    <div
+                      className={`mb-6 ${
+                        theme === "light"
+                          ? "text-gray-700"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      32&nbsp;&nbsp;func Authorize(u *User) error {"{"}
+                    </div>
+
+                    <div
+                      className={`rounded-xl border px-8 py-8 shadow-inner mb-6 ${
+                        theme === "light"
+                          ? "bg-gray-100 border-gray-300"
+                          : "bg-[#0f0f0f] border-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+                          <Terminal size={14} className="text-black" />
+                        </div>
+                        <span className="font-bold">PR-Bot</span>
+                        <span
+                          className={`text-[10px] tracking-widest ${
+                            theme === "light"
+                              ? "text-gray-600"
+                              : "text-slate-500"
+                          }`}
+                        >
+                          SYSTEM
+                        </span>
+                      </div>
+
+                      <p
+                        className={`text-lg mb-3 ${
+                          theme === "light"
+                            ? "text-gray-800"
+                            : "text-slate-200"
+                        }`}
+                      >
+                        Potential nil pointer dereference. Ensure{" "}
+                        <code className="font-semibold">u</code> is initialized
+                        before checking{" "}
+                        <code className="font-semibold">u.Role</code>.
+                      </p>
+
+                      <span
+                        className={`text-sm ${
+                          theme === "light"
+                            ? "text-gray-700"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        Security Critical
+                      </span>
+                    </div>
+
+                    <div
+                      className={`${
+                        theme === "light"
+                          ? "text-gray-700"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      34&nbsp;&nbsp;return errors.New("unauthorized")
+                    </div>
+                    <div
+                      className={`${
+                        theme === "light"
+                          ? "text-gray-700"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      35&nbsp;&nbsp;{"}"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
           </>
         )}
       </main>
@@ -201,7 +442,7 @@ export default function HomePage() {
           <p className="max-w-lg text-sm opacity-80 leading-relaxed">
             AI-powered pull request reviews for high-velocity engineering teams.
             Improve code quality, reduce review fatigue, and ship confidently at
-            scale. Built for developers. Secure by design. Production-ready.
+            scale.
           </p>
 
           <p className="mt-6 text-sm font-semibold opacity-90">
